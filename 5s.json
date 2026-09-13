@@ -1,0 +1,57 @@
+{
+  "id": "5s",
+  "title": "5S Checklist",
+  "scoreOptions": [
+    { "value": 5, "label": "5 - In full compliance" },
+    { "value": 3, "label": "3 - In general compliance (comment required)" },
+    { "value": -1, "label": "-1 - Not in compliance (comment required)" },
+    { "value": "NA", "label": "NA - Not applicable / required" }
+  ],
+  "sections": [
+    {
+      "id": "s1",
+      "title": "S1 - Sort",
+      "items": [
+        { "id": "s1-1", "text": "Are all materials and plant in and around the site area required for the current work scope?" },
+        { "id": "s1-2", "text": "Are walkways and work areas clearly defined and barricaded?" },
+        { "id": "s1-3", "text": "Is the site and work area properly illuminated?" },
+        { "id": "s1-4", "text": "Are GCP best practices visible and in place?" }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "S2 - Storage",
+      "items": [
+        { "id": "s2-1", "text": "Materials are stored in agreed laydown areas in line with expectations and with suitable access?" },
+        { "id": "s2-2", "text": "Are flammable or combustible materials stored in proper containers and locations?" },
+        { "id": "s2-3", "text": "Stacked materials are secure and in proper place?" },
+        { "id": "s2-4", "text": "Firefighting / first aid appliances are stored correctly?" }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "S3 - Shine",
+      "items": [
+        { "id": "s3-1", "text": "Is housekeeping on the site and office areas in line with 5S policy of clean as you go?" },
+        { "id": "s3-2", "text": "Are welfare facilities in place and clean? Is vermin control in place and maintained?" },
+        { "id": "s3-3", "text": "Are GCP best practices visible and in place?" }
+      ]
+    },
+    {
+      "id": "s4",
+      "title": "S4 - Standardise",
+      "items": [
+        { "id": "s4-1", "text": "Is signage and barriers in place, sufficient, appropriate, clear and consistent?" },
+        { "id": "s4-2", "text": "Ownership and standards are evident?" }
+      ]
+    },
+    {
+      "id": "s5",
+      "title": "S5 - Sustain",
+      "items": [
+        { "id": "s5-1", "text": "Are 5S inspections a routine?" },
+        { "id": "s5-2", "text": "Are there outstanding actions from the previous 5S audit?" }
+      ]
+    }
+  ]
+}
