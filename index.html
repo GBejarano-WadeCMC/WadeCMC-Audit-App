@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Wade Site Audits</title>
+<link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#2E2D2B" />
+<style>
+  :root{
+    --wade-navy:#2E2D2B;
+    --wade-navy-light:#4a473f;
+    --wade-gold:#A58339;
+    --wade-gold2:#C2A45E;
+    --wade-grey:#F3F1EC;
+    --wade-border:#E6E2D9;
+    --text:#2E2D2B;
+    --ok:#4F6F3A;
+    --warn:#C06A2C;
+    --bad:#B33A2E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--wade-grey);color:var(--text);}
+  header.appbar{background:var(--wade-navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;}
+  header.appbar .logo{height:30px;flex:none;}
+  header.appbar h1{font-size:16px;margin:0;font-weight:600;flex:1;}
+  header.appbar button.back{background:none;border:none;color:#fff;font-size:15px;cursor:pointer;padding:4px 8px;}
+  main{max-width:720px;margin:0 auto;padding:16px 16px 90px;}
+  .card{background:#fff;border:1px solid var(--wade-border);border-radius:10px;padding:16px;margin-bottom:12px;}
+  .card h2{margin:0 0 6px;font-size:15px;}
+  .card p{margin:0;color:#556;font-size:13px;}
+  .audit-type-btn{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;background:#fff;border:1px solid var(--wade-border);border-radius:10px;padding:16px;margin-bottom:12px;font-size:15px;font-weight:600;color:var(--wade-navy);cursor:pointer;}
+  .audit-type-btn .chev{color:var(--wade-gold);font-size:18px;}
+  .audit-type-btn:disabled{opacity:.5;}
+  .section-title{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#778;margin:20px 0 8px;}
+  label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px;color:#334;}
+  input[type=text],input[type=date],textarea{width:100%;padding:10px;border:1px solid var(--wade-border);border-radius:8px;font-size:15px;font-family:inherit;}
+  textarea{min-height:60px;resize:vertical;}
+  .primary-btn{display:block;width:100%;background:var(--wade-navy);color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-top:16px;}
+  .primary-btn:disabled{opacity:.5;}
+  .secondary-btn{display:block;width:100%;background:#fff;color:var(--wade-navy);border:1px solid var(--wade-navy);border-radius:8px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px;}
+  .item-block{border:1px solid var(--wade-border);border-radius:10px;padding:14px;margin-bottom:10px;background:#fff;}
+  .item-block p.q{font-size:14px;font-weight:500;margin:0 0 10px;}
+  .score-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .score-pill{flex:1;min-width:56px;text-align:center;padding:8px 4px;border-radius:6px;border:1px solid var(--wade-border);font-size:13px;font-weight:700;cursor:pointer;background:#fafbfc;}
+  .score-pill.active[data-tier="good"]{background:var(--ok);color:#fff;border-color:var(--ok);}
+  .score-pill.active[data-tier="mid"]{background:var(--warn);color:#fff;border-color:var(--warn);}
+  .score-pill.active[data-tier="bad"]{background:var(--bad);color:#fff;border-color:var(--bad);}
+  .score-pill.active[data-tier="na"]{background:#8891A0;color:#fff;border-color:#8891A0;}
+  .photo-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .photo-thumb{position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--wade-border);}
+  .photo-thumb img{width:100%;height:100%;object-fit:cover;}
+  .photo-thumb button{position:absolute;top:0;right:0;background:rgba(0,0,0,.6);color:#fff;border:none;width:18px;height:18px;line-height:18px;font-size:12px;cursor:pointer;}
+  .add-photo-btn{width:64px;height:64px;border-radius:6px;border:1px dashed var(--wade-border);background:#fafbfc;font-size:22px;color:#889;cursor:pointer;}
+  .past-audit{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--wade-border);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:13px;}
+  .past-audit .meta{color:#667;font-size:12px;margin-top:2px;}
+  .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:#eef0f4;color:#556;}
+  .empty{color:#889;font-size:13px;text-align:center;padding:30px 0;}
+  .totals-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  .totals-table td{padding:6px 4px;border-bottom:1px solid var(--wade-border);}
+  .totals-table td:last-child{text-align:right;font-weight:700;}
+  .totals-table tr.total td{font-weight:700;border-top:2px solid var(--wade-navy);border-bottom:none;}
+  .fab-save{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--wade-border);padding:12px 16px;max-width:720px;margin:0 auto;}
+  #printArea{display:none;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{display:block;position:absolute;top:0;left:0;width:100%;padding:20px;}
+    .no-print{display:none !important;}
+  }
+  .rpt-header{display:flex;align-items:center;gap:16px;border-bottom:5px solid var(--wade-gold);padding:0 0 16px;margin:0 0 18px;}
+  .rpt-header .rpt-logo{height:52px;flex:none;}
+  .rpt-header .wordmark{font-size:20px;font-weight:800;letter-spacing:.04em;color:var(--wade-navy);line-height:1.1;}
+  .rpt-header .wordmark small{display:block;font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--wade-grey);color:#8a8477;}
+  .rpt-header .rpt-title{margin-left:auto;text-align:right;}
+  .rpt-header h1{font-size:30px;margin:0;color:var(--wade-navy);font-weight:800;line-height:1.1;}
+  .rpt-header .sub{font-size:13px;color:var(--wade-gold);font-weight:700;letter-spacing:.03em;}
+  .rpt-meta{display:flex;gap:24px;font-size:13px;margin-bottom:16px;flex-wrap:wrap;}
+  .rpt-meta div span{display:block;color:#889;font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+  .rpt-section h3{background:var(--wade-navy);color:#fff;padding:6px 10px;border-radius:4px;font-size:13px;margin:18px 0 8px;}
+  .rpt-item{border-bottom:1px solid var(--wade-border);padding:8px 0;font-size:13px;}
+  .rpt-item .score-tag{display:inline-block;font-weight:700;padding:1px 8px;border-radius:20px;font-size:11px;color:#fff;margin-left:6px;}
+  .rpt-photos{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+  .rpt-photos img{width:90px;height:90px;object-fit:cover;border-radius:4px;border:1px solid var(--wade-border);}
+</style>
+</head>
+<body>
+
+<header class="appbar no-print">
+  <button class="back" id="backBtn" style="visibility:hidden">&#8592;</button>
+  <img class="logo" src="./assets/wade-logo.png" alt="Wade Construction Management Consultants" />
+  <h1 id="appTitle">Wade Site Audits</h1>
+</header>
+
+<main id="app"></main>
+
+<div id="printArea"></div>
+
+<script>
+/* ---------------- IndexedDB helper ---------------- */
+const DB_NAME = 'wade-audits-db';
+const STORE = 'audits';
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = ()=>{
+      const db = req.result;
+      if(!db.objectStoreNames.contains(STORE)){
+        db.createObjectStore(STORE, {keyPath:'id'});
+      }
+    };
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+async function dbPut(record){
+  const db = await openDB();
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(STORE,'readwrite');
+    tx.objectStore(STORE).put(record);
+    tx.oncomplete = ()=>res(record);
+    tx.onerror = ()=>rej(tx.error);
+  });
+}
+async function dbGetAll(){
+  const db = await openDB();
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(STORE,'readonly');
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = ()=>res(req.result.sort((a,b)=>b.createdAt-a.createdAt));
+    req.onerror = ()=>rej(req.error);
+  });
+}
+async function dbGet(id){
+  const db = await openDB();
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(STORE,'readonly');
+    const req = tx.objectStore(STORE).get(id);
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = ()=>rej(req.error);
+  });
+}
+async function dbDelete(id){
+  const db = await openDB();
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(STORE,'readwrite');
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete = ()=>res();
+    tx.onerror = ()=>rej(tx.error);
+  });
+}
+
+/* ---------------- Templates ---------------- */
+const TEMPLATE_FILES = {
+  'hs': './templates/hs.json',
+  '5s': './templates/5s.json'
+};
+const templateCache = {};
+async function loadTemplate(id){
+  if(templateCache[id]) return templateCache[id];
+  const res = await fetch(TEMPLATE_FILES[id]);
+  const json = await res.json();
+  templateCache[id] = json;
+  return json;
+}
+
+/* ---------------- App state / router ---------------- */
+const app = document.getElementById('app');
+const appTitle = document.getElementById('appTitle');
+const backBtn = document.getElementById('backBtn');
+let currentAudit = null; // in-progress audit object
+let navStack = [];
+
+function setHeader(title, showBack){
+  appTitle.textContent = title;
+  backBtn.style.visibility = showBack ? 'visible' : 'hidden';
+}
+backBtn.onclick = ()=>{
+  const prev = navStack.pop();
+  if(prev) prev();
+};
+
+function go(renderFn, pushCurrent){
+  if(pushCurrent){
+    navStack.push(renderCurrentScreen);
+  }
+  renderCurrentScreen = renderFn;
+  renderFn();
+}
+let renderCurrentScreen = renderHome;
+
+/* ---------------- Device-level "who's viewing" filter ----------------
+   This only filters which drafts/past audits show in THIS list on THIS
+   device - it is not a login and provides no real access control. All
+   audit data still lives in the same local browser storage, so anyone
+   using the device could see another name's audits by re-entering it. */
+const INSPECTOR_KEY = 'wadeCurrentInspector';
+function getCurrentInspector(){
+  return (localStorage.getItem(INSPECTOR_KEY) || '').trim();
+}
+function setCurrentInspector(name){
+  if(name && name.trim()) localStorage.setItem(INSPECTOR_KEY, name.trim());
+}
+function switchInspector(){
+  const name = window.prompt('Enter your name to view your own audits:', getCurrentInspector());
+  if(name && name.trim()){
+    localStorage.setItem(INSPECTOR_KEY, name.trim());
+    renderHome();
+  }
+}
+
+/* ---------------- Home screen ---------------- */
+async function renderHome(){
+  setHeader('Wade Site Audits', false);
+  navStack = [];
+  const allPast = await dbGetAll();
+  const current = getCurrentInspector();
+  const past = current
+    ? allPast.filter(a => (a.inspector||'').trim().toLowerCase() === current.toLowerCase())
+    : allPast;
+  app.innerHTML = `
+    <div class="section-title">Start new audit</div>
+    <button class="audit-type-btn" id="btnHS">Health &amp; Safety Audit <span class="chev">&#8250;</span></button>
+    <button class="audit-type-btn" id="btn5S">5S Audit <span class="chev">&#8250;</span></button>
+    <button class="audit-type-btn" disabled>More audit types coming soon <span class="chev">&#8250;</span></button>
+
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>${current ? `Your audits (${escapeHtml(current)})` : 'Past audits (all - no name set yet)'}</span>
+      <a href="javascript:void(0)" id="switchUserLink" style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--wade-gold);font-size:12px;">${current ? 'Not you?' : 'Set your name'}</a>
+    </div>
+    <div id="pastList">${past.length ? '' : '<div class="empty">No audits saved here yet.</div>'}</div>
+  `;
+  document.getElementById('btnHS').onclick = ()=>startNewAudit('hs');
+  document.getElementById('btn5S').onclick = ()=>startNewAudit('5s');
+  document.getElementById('switchUserLink').onclick = switchInspector;
+
+  const list = document.getElementById('pastList');
+  past.forEach(a=>{
+    const div = document.createElement('div');
+    div.className = 'past-audit';
+    const statusBadge = a.status === 'complete' ? 'Complete' : 'Draft';
+    div.innerHTML = `
+      <div>
+        <div><strong>${escapeHtml(a.templateTitle)}</strong> - ${escapeHtml(a.projectName||'(no project)')} &middot; ${escapeHtml(a.area||'(no area)')}</div>
+        <div class="meta">${escapeHtml(a.date||'')} &middot; ${escapeHtml(a.inspector||'')}</div>
+      </div>
+      <span class="badge">${statusBadge}</span>
+    `;
+    div.onclick = ()=>openAudit(a.id);
+    list.appendChild(div);
+  });
+}
+
+async function startNewAudit(templateId){
+  const template = await loadTemplate(templateId);
+  currentAudit = {
+    id: 'audit_' + Date.now(),
+    templateId,
+    templateTitle: template.title,
+    projectName: '', area: '', date: new Date().toISOString().slice(0,10), inspector: getCurrentInspector(),
+    itemData: {}, // itemId -> {score, comment, photos:[]}
+    status: 'draft',
+    createdAt: Date.now()
+  };
+  go(()=>renderMetaForm(template), true);
+}
+
+async function openAudit(id){
+  const record = await dbGet(id);
+  currentAudit = record;
+  const template = await loadTemplate(record.templateId);
+  go(()=>renderMetaForm(template), true);
+}
+
+/* ---------------- Meta form (area/date/inspector) ---------------- */
+function renderMetaForm(template){
+  setHeader(template.title, true);
+  app.innerHTML = `
+    <div class="card">
+      <label>Project Name *</label>
+      <input type="text" id="fProject" value="${escapeHtml(currentAudit.projectName)}" placeholder="e.g. Project Name" />
+      <label>Area Inspected *</label>
+      <input type="text" id="fArea" value="${escapeHtml(currentAudit.area)}" placeholder="e.g. Level 2 Plant Room" />
+      <label>Date of Inspection *</label>
+      <input type="date" id="fDate" value="${escapeHtml(currentAudit.date)}" />
+      <label>Inspected By *</label>
+      <input type="text" id="fInspector" value="${escapeHtml(currentAudit.inspector)}" placeholder="Your name" />
+      <p id="validationMsg" style="color:var(--bad);font-size:13px;display:none;margin-top:10px;">Please fill in all fields before continuing.</p>
+    </div>
+    <button class="primary-btn" id="continueBtn">Continue to checklist</button>
+  `;
+  const fields = ['fProject','fArea','fDate','fInspector'].map(id=>document.getElementById(id));
+  const msg = document.getElementById('validationMsg');
+  const allFilled = ()=>fields.every(f=>f.value.trim().length>0);
+
+  document.getElementById('continueBtn').onclick = async ()=>{
+    if(!allFilled()){
+      msg.style.display = 'block';
+      return;
+    }
+    msg.style.display = 'none';
+    currentAudit.projectName = document.getElementById('fProject').value.trim();
+    currentAudit.area = document.getElementById('fArea').value.trim();
+    currentAudit.date = document.getElementById('fDate').value;
+    currentAudit.inspector = document.getElementById('fInspector').value.trim();
+    setCurrentInspector(currentAudit.inspector);
+    await dbPut(currentAudit);
+    go(()=>renderChecklist(template), true);
+  };
+}
+
+/* ---------------- Checklist screen ---------------- */
+function scoringGuideHtml(template){
+  const max = itemMaxFor(template);
+  const rows = template.scoreOptions.map(opt=>{
+    const tier = tierForScore(template, opt.value);
+    return `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">
+      <span style="display:inline-block;min-width:34px;text-align:center;padding:2px 6px;border-radius:4px;font-size:12px;font-weight:700;color:#fff;${tierStyle(tier)}">${escapeHtml(opt.short)}</span>
+      <span style="font-size:13px;">${escapeHtml(opt.label)}</span>
+    </div>`;
+  }).join('');
+  return `
+    <div class="card" style="background:var(--wade-grey);">
+      <h2>Scoring Guide</h2>
+      ${rows}
+      <p style="margin-top:10px;">Any item scored below full compliance (${max}) must have a comment and at least one photo attached before this audit can be completed.</p>
+    </div>
+  `;
+}
+
+function renderChecklist(template){
+  setHeader(template.title, true);
+  let html = scoringGuideHtml(template);
+  template.sections.forEach(section=>{
+    html += `<div class="section-title">${escapeHtml(section.title)}</div>`;
+    section.items.forEach(item=>{
+      const data = currentAudit.itemData[item.id] || {score:null, comment:'', photos:[]};
+      currentAudit.itemData[item.id] = data;
+      html += `
+        <div class="item-block" data-item="${item.id}">
+          <p class="q">${escapeHtml(item.text)}</p>
+          <div class="score-row" data-role="scores">
+            ${template.scoreOptions.map(opt=>`<div class="score-pill" data-v="${opt.value}" data-tier="${tierForScore(template, opt.value)}" data-item="${item.id}">${escapeHtml(opt.short)}</div>`).join('')}
+          </div>
+          <textarea data-role="comment" data-item="${item.id}" placeholder="Comments / actions (required if not fully compliant)">${escapeHtml(data.comment)}</textarea>
+          <div class="photo-row" data-role="photos" data-item="${item.id}">
+            <button class="add-photo-btn" data-role="addphoto" data-item="${item.id}">+</button>
+          </div>
+          <input type="file" accept="image/*" capture="environment" style="display:none" data-role="fileinput" data-item="${item.id}" multiple />
+        </div>
+      `;
+    });
+  });
+  html += `<div id="missingBanner" style="display:none;"></div>`;
+  html += `<button class="primary-btn" id="finishBtn">Finish &amp; view report</button>`;
+  app.innerHTML = html;
+
+  function clearMissingHighlight(itemId){
+    const block = app.querySelector(`.item-block[data-item="${itemId}"]`);
+    if(block) block.style.borderColor = '';
+  }
+
+  // wire up score pills
+  app.querySelectorAll('.score-pill').forEach(pill=>{
+    pill.onclick = async ()=>{
+      const itemId = pill.dataset.item;
+      let v = pill.dataset.v;
+      v = v === 'NA' ? 'NA' : Number(v);
+      currentAudit.itemData[itemId].score = v;
+      const container = app.querySelector(`.item-block[data-item="${itemId}"] [data-role="scores"]`);
+      container.querySelectorAll('.score-pill').forEach(p=>p.classList.remove('active'));
+      pill.classList.add('active');
+      await dbPut(currentAudit);
+    };
+    // restore state
+    const itemId = pill.dataset.item;
+    const existing = currentAudit.itemData[itemId].score;
+    if(existing !== null && existing !== undefined && String(existing) === pill.dataset.v){
+      pill.classList.add('active');
+    }
+  });
+
+  // comments
+  app.querySelectorAll('[data-role="comment"]').forEach(ta=>{
+    ta.oninput = async ()=>{
+      currentAudit.itemData[ta.dataset.item].comment = ta.value;
+      if(ta.value.trim()) clearMissingHighlight(ta.dataset.item);
+      await dbPut(currentAudit);
+    };
+  });
+
+  // photos
+  app.querySelectorAll('[data-role="photos"]').forEach(row=>{
+    renderPhotoThumbs(row, row.dataset.item);
+  });
+  app.querySelectorAll('[data-role="addphoto"]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const input = app.querySelector(`[data-role="fileinput"][data-item="${btn.dataset.item}"]`);
+      input.click();
+    };
+  });
+  app.querySelectorAll('[data-role="fileinput"]').forEach(input=>{
+    input.onchange = async (e)=>{
+      const files = Array.from(e.target.files || []);
+      for(const file of files){
+        const dataUrl = await fileToCompressedDataURL(file);
+        currentAudit.itemData[input.dataset.item].photos.push(dataUrl);
+      }
+      await dbPut(currentAudit);
+      const row = app.querySelector(`[data-role="photos"][data-item="${input.dataset.item}"]`);
+      renderPhotoThumbs(row, input.dataset.item);
+      if(files.length) clearMissingHighlight(input.dataset.item);
+      input.value = '';
+    };
+  });
+
+  document.getElementById('finishBtn').onclick = async ()=>{
+    const max = itemMaxFor(template);
+    const missing = [];
+    template.sections.forEach(section=>{
+      section.items.forEach(item=>{
+        const d = currentAudit.itemData[item.id];
+        const score = d ? d.score : null;
+        if(typeof score === 'number' && score < max){
+          const hasComment = d.comment && d.comment.trim().length > 0;
+          const hasPhoto = d.photos && d.photos.length > 0;
+          if(!hasComment || !hasPhoto){
+            missing.push({id: item.id, section: section.title, text: item.text, needComment: !hasComment, needPhoto: !hasPhoto});
+          }
+        }
+      });
+    });
+    const banner = document.getElementById('missingBanner');
+    if(missing.length){
+      banner.style.display = 'block';
+      banner.innerHTML = `
+        <div class="card" style="border-color:var(--bad);border-width:2px;">
+          <h2 style="color:var(--bad);">Can't finish yet - ${missing.length} item${missing.length>1?'s':''} need${missing.length>1?'':'s'} evidence</h2>
+          ${missing.map(m=>`<p style="margin:6px 0;font-size:13px;"><strong>${escapeHtml(m.section)}:</strong> ${escapeHtml(m.text)} - missing ${[m.needComment&&'comment', m.needPhoto&&'photo'].filter(Boolean).join(' and ')}</p>`).join('')}
+        </div>
+      `;
+      missing.forEach(m=>{
+        const block = app.querySelector(`.item-block[data-item="${m.id}"]`);
+        if(block) block.style.borderColor = 'var(--bad)';
+      });
+      banner.scrollIntoView({behavior:'smooth', block:'start'});
+      return;
+    }
+    banner.style.display = 'none';
+    currentAudit.status = 'complete';
+    await dbPut(currentAudit);
+    go(()=>renderReport(template), true);
+  };
+}
+
+function renderPhotoThumbs(row, itemId){
+  const addBtn = row.querySelector('[data-role="addphoto"]');
+  row.querySelectorAll('.photo-thumb').forEach(el=>el.remove());
+  const photos = currentAudit.itemData[itemId].photos || [];
+  photos.forEach((src, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = `<img src="${src}"/><button data-idx="${idx}">&times;</button>`;
+    div.querySelector('button').onclick = async (ev)=>{
+      ev.stopPropagation();
+      currentAudit.itemData[itemId].photos.splice(idx,1);
+      await dbPut(currentAudit);
+      renderPhotoThumbs(row, itemId);
+    };
+    row.insertBefore(div, addBtn);
+  });
+}
+
+// Downscale/compress photos so audits with many images stay small in IndexedDB / the PDF
+function fileToCompressedDataURL(file, maxDim=1280, quality=0.7){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = ()=>{ img.src = reader.result; };
+    reader.onerror = reject;
+    img.onload = ()=>{
+      let {width,height} = img;
+      if(width > height && width > maxDim){ height = height*(maxDim/width); width = maxDim; }
+      else if(height > maxDim){ width = width*(maxDim/height); height = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img,0,0,width,height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------------- Report / scoring ---------------- */
+function itemMaxFor(template){
+  return Math.max(...template.scoreOptions.filter(o=>typeof o.value==='number').map(o=>o.value));
+}
+function tierForScore(template, score){
+  if(score===undefined || score===null || score==='NA') return 'na';
+  if(typeof score !== 'number') return 'na';
+  const max = itemMaxFor(template);
+  if(score === max) return 'good';
+  if(score === 0) return 'bad';
+  return 'mid';
+}
+function shortForScore(template, score){
+  if(score===undefined || score===null) return 'Not scored';
+  const opt = template.scoreOptions.find(o=>String(o.value)===String(score));
+  return opt ? opt.short : score;
+}
+function tierStyle(tier){
+  if(tier==='good') return 'background:var(--ok)';
+  if(tier==='mid') return 'background:var(--warn)';
+  if(tier==='bad') return 'background:var(--bad)';
+  return 'background:#8891A0';
+}
+function computeSectionTotals(template){
+  const itemMax = itemMaxFor(template);
+  const criticalItems = [];
+  const results = template.sections.map(section=>{
+    let sum = 0, max = 0;
+    section.items.forEach(item=>{
+      const d = currentAudit.itemData[item.id];
+      const score = d ? d.score : null;
+      if(score === 'NA') return; // N/A items don't count toward the possible total
+      max += itemMax;
+      if(typeof score === 'number') sum += score;
+      if(score === 0){
+        criticalItems.push({section: section.title, text: item.text, comment: (d && d.comment) || ''});
+      }
+    });
+    return {title:section.title, sum, max};
+  });
+  const overallSum = results.reduce((a,r)=>a+r.sum,0);
+  const overallMax = results.reduce((a,r)=>a+r.max,0);
+  return {results, overallSum, overallMax, criticalItems};
+}
+
+function renderReport(template){
+  setHeader('Report', true);
+  const {results, overallSum, overallMax, criticalItems} = computeSectionTotals(template);
+  const pct = overallMax ? Math.round((overallSum/overallMax)*100) : 0;
+
+  app.innerHTML = `
+    <div class="card">
+      <h2>${escapeHtml(currentAudit.templateTitle)}</h2>
+      <p>${escapeHtml(currentAudit.projectName)} &middot; ${escapeHtml(currentAudit.area)} &middot; ${escapeHtml(currentAudit.date)} &middot; ${escapeHtml(currentAudit.inspector)}</p>
+      <table class="totals-table">
+        ${results.map(r=>`<tr><td>${escapeHtml(r.title)}</td><td>${r.max ? r.sum+' / '+r.max : 'N/A'}</td></tr>`).join('')}
+        <tr class="total"><td>Overall</td><td>${overallMax ? overallSum+' / '+overallMax+' ('+pct+'%)' : 'N/A'}</td></tr>
+      </table>
+    </div>
+    ${criticalItems.length ? `
+    <div class="card" style="border-color:var(--bad);border-width:2px;">
+      <h2 style="color:var(--bad);">${criticalItems.length} Non-Compliant Item${criticalItems.length>1?'s':''} - Action Required</h2>
+      ${criticalItems.map(c=>`<p style="margin:8px 0;"><strong>${escapeHtml(c.section)}:</strong> ${escapeHtml(c.text)}${c.comment?' - '+escapeHtml(c.comment):''}</p>`).join('')}
+    </div>` : ''}
+    <button class="primary-btn" id="pdfBtn">Export / Print PDF Report</button>
+    <button class="secondary-btn" id="editBtn">Back to checklist</button>
+    <button class="secondary-btn" id="homeBtn">Done - back to home</button>
+  `;
+  document.getElementById('pdfBtn').onclick = ()=>buildPrintView(template, results, overallSum, overallMax, pct, criticalItems);
+  document.getElementById('editBtn').onclick = ()=>go(()=>renderChecklist(template), true);
+  document.getElementById('homeBtn').onclick = ()=>go(renderHome, false);
+}
+
+function buildPrintView(template, results, overallSum, overallMax, pct, criticalItems){
+  const printArea = document.getElementById('printArea');
+  let html = `
+    <div class="rpt-header">
+      <img class="rpt-logo" src="./assets/wade-mark.png" alt="Wade" />
+      <div class="wordmark">WADE<small>CONSTRUCTION MANAGEMENT CONSULTANTS</small></div>
+      <div class="rpt-title">
+        <h1>${escapeHtml(currentAudit.templateTitle)}</h1>
+        <div class="sub">SITE AUDIT REPORT</div>
+      </div>
+    </div>
+    <div class="rpt-meta">
+      <div><span>Project</span>${escapeHtml(currentAudit.projectName||'-')}</div>
+      <div><span>Area Inspected</span>${escapeHtml(currentAudit.area||'-')}</div>
+      <div><span>Date</span>${escapeHtml(currentAudit.date||'-')}</div>
+      <div><span>Inspected By</span>${escapeHtml(currentAudit.inspector||'-')}</div>
+      <div><span>Overall Score</span>${overallMax ? overallSum+' / '+overallMax+' ('+pct+'%)' : 'N/A'}</div>
+    </div>
+    ${(criticalItems && criticalItems.length) ? `
+    <div style="border:2px solid var(--bad);border-radius:8px;padding:12px 16px;margin-bottom:16px;">
+      <div style="color:var(--bad);font-weight:700;margin-bottom:6px;">${criticalItems.length} Non-Compliant Item${criticalItems.length>1?'s':''} - Action Required</div>
+      ${criticalItems.map(c=>`<div style="font-size:13px;margin:4px 0;"><strong>${escapeHtml(c.section)}:</strong> ${escapeHtml(c.text)}${c.comment?' - '+escapeHtml(c.comment):''}</div>`).join('')}
+    </div>` : ''}
+    <table class="totals-table">
+      ${results.map(r=>`<tr><td>${escapeHtml(r.title)}</td><td>${r.max ? r.sum+' / '+r.max : 'N/A'}</td></tr>`).join('')}
+      <tr class="total"><td>Overall</td><td>${overallMax ? overallSum+' / '+overallMax+' ('+pct+'%)' : 'N/A'}</td></tr>
+    </table>
+    <div style="border:1px solid var(--wade-border);border-radius:6px;padding:10px 14px;margin:16px 0;font-size:12px;">
+      <strong>Scoring Guide:</strong>
+      ${template.scoreOptions.map(opt=>escapeHtml(opt.label)).join(' &nbsp;|&nbsp; ')}
+    </div>
+  `;
+  template.sections.forEach(section=>{
+    html += `<div class="rpt-section"><h3>${escapeHtml(section.title)}</h3>`;
+    section.items.forEach(item=>{
+      const d = currentAudit.itemData[item.id] || {};
+      const scoreLabel = shortForScore(template, d.score);
+      html += `
+        <div class="rpt-item">
+          <div>${escapeHtml(item.text)} <span class="score-tag" style="${tierStyle(tierForScore(template, d.score))}">${escapeHtml(scoreLabel)}</span></div>
+          ${d.comment ? `<div style="color:#556;margin-top:4px;">${escapeHtml(d.comment)}</div>` : ''}
+          ${(d.photos && d.photos.length) ? `<div class="rpt-photos">${d.photos.map(p=>`<img src="${p}"/>`).join('')}</div>` : ''}
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+  printArea.innerHTML = html;
+  window.print();
+}
+
+/* ---------------- utils ---------------- */
+function escapeHtml(str){
+  return (str||'').toString().replace(/[&<>"']/g, s=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[s]));
+}
+
+/* ---------------- boot ---------------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+renderHome();
+</script>
+</body>
+</html>
