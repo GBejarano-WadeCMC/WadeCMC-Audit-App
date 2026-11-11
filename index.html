@@ -61,13 +61,59 @@
   .totals-table td:last-child{text-align:right;font-weight:700;}
   .totals-table tr.total td{font-weight:700;border-top:2px solid var(--wade-navy);border-bottom:none;}
   .fab-save{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--wade-border);padding:12px 16px;max-width:720px;margin:0 auto;}
+  select{width:100%;padding:10px;border:1px solid var(--wade-border);border-radius:8px;font-size:15px;font-family:inherit;background:#fff;}
+  .obs-card{display:flex;gap:12px;background:#fff;border:1px solid var(--wade-border);border-radius:10px;padding:10px;margin-bottom:10px;cursor:pointer;}
+  .obs-card .thumb{width:64px;height:64px;border-radius:6px;background:var(--wade-grey);object-fit:cover;flex:none;display:flex;align-items:center;justify-content:center;color:#99a;font-size:11px;text-align:center;}
+  .obs-card .info{flex:1;min-width:0;font-size:13px;}
+  .obs-card .info .top{font-weight:700;margin-bottom:3px;}
+  .obs-card .info .snip{color:#556;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .tag{display:inline-block;font-weight:700;padding:1px 8px;border-radius:20px;font-size:11px;color:#fff;margin-left:6px;}
+  .tag.incomplete{background:#8891A0;}
+  .type-row{display:flex;gap:8px;}
+  .type-pill{flex:1;text-align:center;padding:12px 6px;border-radius:8px;border:1px solid var(--wade-border);font-size:14px;font-weight:700;cursor:pointer;background:#fafbfc;}
+  .type-pill.active[data-tier="bad"]{background:var(--bad);color:#fff;border-color:var(--bad);}
+  .type-pill.active[data-tier="good"]{background:var(--ok);color:#fff;border-color:var(--ok);}
+  .check-row{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:14px;font-weight:600;}
+  .check-row input{width:20px;height:20px;}
+  .danger-btn{display:block;width:100%;background:#fff;color:var(--bad);border:1px solid var(--bad);border-radius:8px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px;}
+  /* GEMBA report layout (print) */
+  .gm-cover{break-after:page;page-break-after:always;}
+  .gm-hero{position:relative;height:185mm;background:#d8d4ca;overflow:hidden;}
+  .gm-hero img{width:100%;height:100%;object-fit:cover;display:block;}
+  .gm-panel{position:absolute;left:8mm;right:8mm;bottom:10mm;background:rgba(46,45,43,.92);color:#fff;padding:9mm 10mm;border-bottom:2mm solid var(--wade-gold);}
+  .gm-title{font-size:26px;font-weight:800;line-height:1.15;margin-bottom:6mm;}
+  .gm-line{font-size:15px;font-weight:700;margin-top:2.5mm;}
+  .gm-summary{font-size:13px;margin:0 0 12px;color:#556;}
+  .gm-item{display:flex;gap:6mm;padding:5mm 0;border-bottom:1px solid var(--wade-border);}
+  .gm-photos{width:60mm;flex:none;}
+  .gm-photos img{display:block;width:100%;height:auto;max-height:85mm;object-fit:cover;border-radius:2mm;margin-bottom:2mm;}
+  .gm-time{font-size:10px;color:#889;}
+  .gm-text{flex:1;min-width:0;font-size:13px;line-height:1.45;}
+  .gm-h{font-size:15px;font-weight:800;color:var(--wade-navy);}
+  .gm-h .score-tag{display:inline-block;font-weight:700;padding:1px 9px;border-radius:20px;font-size:11px;color:#fff;margin-left:8px;vertical-align:middle;}
+  .gm-meta{font-size:12px;color:#8a8477;margin:1mm 0 3mm;}
+  .gm-body{white-space:pre-wrap;}
+  .gm-soc{margin-top:3mm;font-size:12px;font-weight:700;color:var(--wade-gold);}
+  .gm-signoff{margin-top:10mm;font-size:13px;}
+  .gm-signoff strong{display:block;font-size:15px;}
   #printArea{display:none;}
 
+  /* Print: zero page margin removes the browser's URL/date/title header & footer.
+     The real margins come from the repeating spacer rows in .print-frame. */
+  @page{size:A4;margin:0;}
   @media print{
-    body *{visibility:hidden;}
-    #printArea, #printArea *{visibility:visible;}
-    #printArea{display:block;position:absolute;top:0;left:0;width:100%;padding:20px;}
-    .no-print{display:none !important;}
+    html,body{background:#fff !important;margin:0;padding:0;}
+    header.appbar, main, .no-print{display:none !important;}
+    #printArea{display:block;}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .print-frame{width:100%;border-collapse:collapse;}
+    .print-frame thead{display:table-header-group;}
+    .print-frame tfoot{display:table-footer-group;}
+    .print-frame .pg-space{height:14mm;}
+    .print-frame td.pg-body{padding:0 14mm;vertical-align:top;}
+    .rpt-header, .rpt-meta, .rpt-item, .gm-item, .gm-signoff, .totals-table tr, .rpt-callout, .rpt-guide{break-inside:avoid;page-break-inside:avoid;}
+    .rpt-section h3{break-after:avoid;page-break-after:avoid;}
+    .rpt-photos img{break-inside:avoid;page-break-inside:avoid;}
   }
   .rpt-header{display:flex;align-items:center;gap:16px;border-bottom:5px solid var(--wade-gold);padding:0 0 16px;margin:0 0 18px;}
   .rpt-header .rpt-logo{height:52px;flex:none;}
@@ -154,7 +200,8 @@ async function dbDelete(id){
 /* ---------------- Templates ---------------- */
 const TEMPLATE_FILES = {
   'hs': './templates/hs.json',
-  '5s': './templates/5s.json'
+  '5s': './templates/5s.json',
+  'gemba': './templates/gemba.json'
 };
 const templateCache = {};
 async function loadTemplate(id){
@@ -178,7 +225,7 @@ function setHeader(title, showBack){
 }
 backBtn.onclick = ()=>{
   const prev = navStack.pop();
-  if(prev) prev();
+  if(prev){ renderCurrentScreen = prev; prev(); }
 };
 
 function go(renderFn, pushCurrent){
@@ -222,6 +269,7 @@ async function renderHome(){
   app.innerHTML = `
     <div class="section-title">Start new audit</div>
     <button class="audit-type-btn" id="btnHS">Health &amp; Safety Audit <span class="chev">&#8250;</span></button>
+    <button class="audit-type-btn" id="btnGemba">Daily Safety GEMBA <span class="chev">&#8250;</span></button>
     <button class="audit-type-btn" id="btn5S">5S Audit <span class="chev">&#8250;</span></button>
     <button class="audit-type-btn" disabled>More audit types coming soon <span class="chev">&#8250;</span></button>
 
@@ -233,6 +281,7 @@ async function renderHome(){
   `;
   document.getElementById('btnHS').onclick = ()=>startNewAudit('hs');
   document.getElementById('btn5S').onclick = ()=>startNewAudit('5s');
+  document.getElementById('btnGemba').onclick = ()=>startNewAudit('gemba');
   document.getElementById('switchUserLink').onclick = switchInspector;
 
   const list = document.getElementById('pastList');
@@ -242,7 +291,7 @@ async function renderHome(){
     const statusBadge = a.status === 'complete' ? 'Complete' : 'Draft';
     div.innerHTML = `
       <div>
-        <div><strong>${escapeHtml(a.templateTitle)}</strong> - ${escapeHtml(a.projectName||'(no project)')} &middot; ${escapeHtml(a.area||'(no area)')}</div>
+        <div><strong>${escapeHtml(a.templateTitle)}</strong> - ${escapeHtml(a.projectName||'(no project)')} &middot; ${escapeHtml(a.area||a.preparedFor||'(no area)')}</div>
         <div class="meta">${escapeHtml(a.date||'')} &middot; ${escapeHtml(a.inspector||'')}</div>
       </div>
       <span class="badge">${statusBadge}</span>
@@ -275,6 +324,7 @@ async function openAudit(id){
 
 /* ---------------- Meta form (area/date/inspector) ---------------- */
 function renderMetaForm(template){
+  if(template.mode === 'observations') return renderGembaMeta(template);
   setHeader(template.title, true);
   app.innerHTML = `
     <div class="card">
@@ -585,7 +635,7 @@ function buildPrintView(template, results, overallSum, overallMax, pct, critical
       <div><span>Overall Score</span>${overallMax ? overallSum+' / '+overallMax+' ('+pct+'%)' : 'N/A'}</div>
     </div>
     ${(criticalItems && criticalItems.length) ? `
-    <div style="border:2px solid var(--bad);border-radius:8px;padding:12px 16px;margin-bottom:16px;">
+    <div class="rpt-callout" style="border:2px solid var(--bad);border-radius:8px;padding:12px 16px;margin-bottom:16px;">
       <div style="color:var(--bad);font-weight:700;margin-bottom:6px;">${criticalItems.length} Non-Compliant Item${criticalItems.length>1?'s':''} - Action Required</div>
       ${criticalItems.map(c=>`<div style="font-size:13px;margin:4px 0;"><strong>${escapeHtml(c.section)}:</strong> ${escapeHtml(c.text)}${c.comment?' - '+escapeHtml(c.comment):''}</div>`).join('')}
     </div>` : ''}
@@ -593,7 +643,7 @@ function buildPrintView(template, results, overallSum, overallMax, pct, critical
       ${results.map(r=>`<tr><td>${escapeHtml(r.title)}</td><td>${r.max ? r.sum+' / '+r.max : 'N/A'}</td></tr>`).join('')}
       <tr class="total"><td>Overall</td><td>${overallMax ? overallSum+' / '+overallMax+' ('+pct+'%)' : 'N/A'}</td></tr>
     </table>
-    <div style="border:1px solid var(--wade-border);border-radius:6px;padding:10px 14px;margin:16px 0;font-size:12px;">
+    <div class="rpt-guide" style="border:1px solid var(--wade-border);border-radius:6px;padding:10px 14px;margin:16px 0;font-size:12px;">
       <strong>Scoring Guide:</strong>
       ${template.scoreOptions.map(opt=>escapeHtml(opt.label)).join(' &nbsp;|&nbsp; ')}
     </div>
@@ -613,8 +663,291 @@ function buildPrintView(template, results, overallSum, overallMax, pct, critical
     });
     html += `</div>`;
   });
-  printArea.innerHTML = html;
+  printHtml(html);
+}
+
+/* ---------------- Print helper (zero page margin + repeating spacers) ---------------- */
+function printHtml(html){
+  document.getElementById('printArea').innerHTML = `<table class="print-frame">
+    <thead><tr><td><div class="pg-space"></div></td></tr></thead>
+    <tfoot><tr><td><div class="pg-space"></div></td></tr></tfoot>
+    <tbody><tr><td class="pg-body">${html}</td></tr></tbody>
+  </table>`;
   window.print();
+}
+
+/* ---------------- GEMBA (observation log) ---------------- */
+const GEMBA_TYPES = [
+  {v:'hazard', label:'Hazard / Improvement', short:'Hazard', tier:'bad'},
+  {v:'good',   label:'Good practice',        short:'Good practice', tier:'good'}
+];
+function gType(v){ return GEMBA_TYPES.find(t=>t.v===v); }
+function fmtTime(ts){
+  const d = new Date(ts);
+  return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + ' ' + d.toLocaleDateString('en-GB');
+}
+function fmtLongDate(iso){
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function obsMissing(o){
+  const m = [];
+  if(!o.type) m.push('type');
+  if(!(o.text && o.text.trim())) m.push('description');
+  if(!(o.photos && o.photos.length)) m.push('photo');
+  return m;
+}
+
+function renderGembaMeta(template){
+  setHeader(template.title, true);
+  app.innerHTML = `
+    <div class="card">
+      <label>Project Name *</label>
+      <input type="text" id="fProject" value="${escapeHtml(currentAudit.projectName)}" placeholder="e.g. Project Name" />
+      <label>Prepared For * (client / site owner)</label>
+      <input type="text" id="fPrepFor" value="${escapeHtml(currentAudit.preparedFor||'')}" placeholder="e.g. Client name" />
+      <label>Date *</label>
+      <input type="date" id="fDate" value="${escapeHtml(currentAudit.date)}" />
+      <label>Prepared By *</label>
+      <input type="text" id="fInspector" value="${escapeHtml(currentAudit.inspector)}" placeholder="Your name" />
+      <p id="validationMsg" style="color:var(--bad);font-size:13px;display:none;margin-top:10px;">Please fill in all fields before continuing.</p>
+    </div>
+    <button class="primary-btn" id="continueBtn">Start GEMBA walk</button>
+  `;
+  const ids = ['fProject','fPrepFor','fDate','fInspector'];
+  document.getElementById('continueBtn').onclick = async ()=>{
+    const vals = ids.map(id=>document.getElementById(id).value.trim());
+    if(vals.some(v=>!v)){ document.getElementById('validationMsg').style.display='block'; return; }
+    currentAudit.projectName = vals[0];
+    currentAudit.preparedFor = vals[1];
+    currentAudit.date = document.getElementById('fDate').value;
+    currentAudit.inspector = vals[3];
+    currentAudit.observations = currentAudit.observations || [];
+    setCurrentInspector(currentAudit.inspector);
+    await dbPut(currentAudit);
+    go(()=>renderGembaList(template), true);
+  };
+}
+
+function renderGembaList(template){
+  setHeader(template.title, true);
+  currentAudit.observations = currentAudit.observations || [];
+  const obs = currentAudit.observations;
+  const hz = obs.filter(o=>o.type==='hazard').length;
+  const gd = obs.filter(o=>o.type==='good').length;
+  app.innerHTML = `
+    <div class="card" style="background:var(--wade-grey);">
+      <h2>${escapeHtml(currentAudit.projectName)} &middot; ${escapeHtml(fmtLongDate(currentAudit.date))}</h2>
+      <p>Prepared for ${escapeHtml(currentAudit.preparedFor)} &middot; ${obs.length} item${obs.length===1?'':'s'} (${hz} hazard, ${gd} good practice)</p>
+      <p style="margin-top:8px;">Add an observation for each finding as you walk the site. Every item needs a photo, a type and a description before the report can be created.</p>
+    </div>
+    <div id="obsList">${obs.length ? '' : '<div class="empty">No observations yet.</div>'}</div>
+    <div id="missingBanner" style="display:none;"></div>
+    <button class="primary-btn" id="addObsBtn">+ Add observation</button>
+    <button class="secondary-btn" id="finishBtn">Finish &amp; view report</button>
+  `;
+  const list = document.getElementById('obsList');
+  obs.forEach((o,i)=>{
+    const t = gType(o.type);
+    const missing = obsMissing(o);
+    const div = document.createElement('div');
+    div.className = 'obs-card';
+    div.dataset.obs = o.id;
+    div.innerHTML = `
+      ${o.photos && o.photos.length ? `<img class="thumb" src="${o.photos[0]}"/>` : `<div class="thumb">No photo</div>`}
+      <div class="info">
+        <div class="top">Item ${i+1} &middot; ${escapeHtml(fmtTime(o.time))}
+          ${t ? `<span class="tag" style="${tierStyle(t.tier)}">${escapeHtml(t.short)}</span>` : ''}
+          ${missing.length ? `<span class="tag incomplete">Incomplete</span>` : ''}</div>
+        <div class="snip">${escapeHtml(o.text || '(no description yet)')}</div>
+      </div>`;
+    div.onclick = ()=>go(()=>renderGembaForm(template, o.id), true);
+    list.appendChild(div);
+  });
+
+  document.getElementById('addObsBtn').onclick = async ()=>{
+    const o = {id:'o_'+Date.now(), time:Date.now(), type:null, category:'', location:'', text:'', assignedTo:currentAudit.preparedFor, soc:false, photos:[]};
+    currentAudit.observations.push(o);
+    await dbPut(currentAudit);
+    go(()=>renderGembaForm(template, o.id), true);
+  };
+
+  document.getElementById('finishBtn').onclick = async ()=>{
+    const banner = document.getElementById('missingBanner');
+    const problems = [];
+    if(!obs.length) problems.push('Add at least one observation.');
+    const bad = [];
+    obs.forEach((o,i)=>{ const m = obsMissing(o); if(m.length) bad.push({id:o.id, n:i+1, m}); });
+    bad.forEach(b=>problems.push(`Item ${b.n} - missing ${b.m.join(' and ')}`));
+    if(problems.length){
+      banner.style.display = 'block';
+      banner.innerHTML = `<div class="card" style="border-color:var(--bad);border-width:2px;">
+        <h2 style="color:var(--bad);">Can't finish yet</h2>
+        ${problems.map(p=>`<p style="margin:6px 0;font-size:13px;">${escapeHtml(p)}</p>`).join('')}</div>`;
+      bad.forEach(b=>{ const el = list.querySelector(`[data-obs="${b.id}"]`); if(el) el.style.borderColor = 'var(--bad)'; });
+      banner.scrollIntoView({behavior:'smooth', block:'start'});
+      return;
+    }
+    currentAudit.status = 'complete';
+    await dbPut(currentAudit);
+    go(()=>renderGembaReport(template), true);
+  };
+}
+
+function renderGembaForm(template, obsId){
+  const o = currentAudit.observations.find(x=>x.id===obsId);
+  const n = currentAudit.observations.indexOf(o) + 1;
+  setHeader('Item ' + n, true);
+  app.innerHTML = `
+    <div class="card">
+      <label>Photos *</label>
+      <div class="photo-row" id="gPhotos"><button class="add-photo-btn" id="gAddPhoto">+</button></div>
+      <input type="file" accept="image/*" capture="environment" style="display:none" id="gFile" multiple />
+
+      <label style="margin-top:16px;">Type *</label>
+      <div class="type-row">
+        ${GEMBA_TYPES.map(t=>`<div class="type-pill" data-v="${t.v}" data-tier="${t.tier}">${escapeHtml(t.label)}</div>`).join('')}
+      </div>
+
+      <label>Category</label>
+      <select id="gCat"><option value="">Select category (optional)</option>
+        ${template.categories.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
+      </select>
+
+      <label>Location</label>
+      <input type="text" id="gLoc" value="${escapeHtml(o.location)}" placeholder="e.g. Phase 2 ground floor, south side" />
+
+      <label>Description *</label>
+      <textarea id="gText" style="min-height:110px;" placeholder="What did you see, and what should happen?">${escapeHtml(o.text)}</textarea>
+
+      <label>Assigned To</label>
+      <input type="text" id="gAssign" value="${escapeHtml(o.assignedTo)}" />
+
+      <div class="check-row"><input type="checkbox" id="gSoc" ${o.soc?'checked':''} /><label for="gSoc" style="margin:0;">Safety Observation Card (SOC) submitted</label></div>
+    </div>
+    <button class="primary-btn" id="gDone">Done</button>
+    <button class="danger-btn" id="gDelete">Delete this observation</button>
+  `;
+  const save = ()=>dbPut(currentAudit);
+
+  // photos
+  const row = document.getElementById('gPhotos');
+  const addBtn = document.getElementById('gAddPhoto');
+  function drawPhotos(){
+    row.querySelectorAll('.photo-thumb').forEach(el=>el.remove());
+    o.photos.forEach((src,idx)=>{
+      const d = document.createElement('div');
+      d.className = 'photo-thumb';
+      d.innerHTML = `<img src="${src}"/><button>&times;</button>`;
+      d.querySelector('button').onclick = async ev=>{ ev.stopPropagation(); o.photos.splice(idx,1); await save(); drawPhotos(); };
+      row.insertBefore(d, addBtn);
+    });
+  }
+  drawPhotos();
+  addBtn.onclick = ()=>document.getElementById('gFile').click();
+  document.getElementById('gFile').onchange = async e=>{
+    const files = Array.from(e.target.files || []);
+    for(const f of files){ o.photos.push(await fileToCompressedDataURL(f)); }
+    if(files.length && o.photos.length === files.length) o.time = Date.now(); // time of first photo
+    await save(); drawPhotos(); e.target.value = '';
+  };
+
+  // type
+  const pills = app.querySelectorAll('.type-pill');
+  function drawType(){ pills.forEach(p=>p.classList.toggle('active', p.dataset.v === o.type)); }
+  pills.forEach(p=>p.onclick = async ()=>{ o.type = p.dataset.v; drawType(); await save(); });
+  drawType();
+
+  // fields
+  const cat = document.getElementById('gCat'); cat.value = o.category || '';
+  cat.onchange = async ()=>{ o.category = cat.value; await save(); };
+  document.getElementById('gLoc').oninput = async e=>{ o.location = e.target.value; await save(); };
+  document.getElementById('gText').oninput = async e=>{ o.text = e.target.value; await save(); };
+  document.getElementById('gAssign').oninput = async e=>{ o.assignedTo = e.target.value; await save(); };
+  document.getElementById('gSoc').onchange = async e=>{ o.soc = e.target.checked; await save(); };
+
+  document.getElementById('gDone').onclick = ()=>backBtn.onclick();
+  document.getElementById('gDelete').onclick = async ()=>{
+    if(!window.confirm('Delete this observation and its photos?')) return;
+    currentAudit.observations = currentAudit.observations.filter(x=>x.id!==obsId);
+    await save();
+    backBtn.onclick();
+  };
+}
+
+function renderGembaReport(template){
+  setHeader('Report', true);
+  const obs = currentAudit.observations;
+  const hz = obs.filter(o=>o.type==='hazard').length;
+  const gd = obs.filter(o=>o.type==='good').length;
+  const soc = obs.filter(o=>o.soc).length;
+  app.innerHTML = `
+    <div class="card">
+      <h2>${escapeHtml(currentAudit.projectName)} GEMBA report</h2>
+      <p>${escapeHtml(fmtLongDate(currentAudit.date))} &middot; Prepared for ${escapeHtml(currentAudit.preparedFor)} &middot; ${escapeHtml(currentAudit.inspector)}</p>
+      <table class="totals-table">
+        <tr><td>Items identified</td><td>${obs.length}</td></tr>
+        <tr><td>Hazards / improvements</td><td>${hz}</td></tr>
+        <tr><td>Good practice</td><td>${gd}</td></tr>
+        <tr><td>SOCs submitted</td><td>${soc}</td></tr>
+      </table>
+    </div>
+    <button class="primary-btn" id="pdfBtn">Export / Print PDF Report</button>
+    <button class="secondary-btn" id="editBtn">Back to observations</button>
+    <button class="secondary-btn" id="homeBtn">Done - back to home</button>
+  `;
+  document.getElementById('pdfBtn').onclick = ()=>buildGembaPrintView(template);
+  document.getElementById('editBtn').onclick = ()=>go(()=>renderGembaList(template), true);
+  document.getElementById('homeBtn').onclick = ()=>go(renderHome, false);
+}
+
+function buildGembaPrintView(template){
+  const obs = currentAudit.observations;
+  const n = obs.length;
+  const hz = obs.filter(o=>o.type==='hazard').length;
+  const gd = obs.filter(o=>o.type==='good').length;
+  const soc = obs.filter(o=>o.soc).length;
+  const heroObs = obs.find(o=>o.photos && o.photos.length);
+  const hero = heroObs ? heroObs.photos[0] : '';
+
+  let html = `
+    <div class="gm-cover">
+      <div class="rpt-header">
+        <img class="rpt-logo" src="./assets/wade-mark.png" alt="Wade" />
+        <div class="wordmark">WADE<small>CONSTRUCTION MANAGEMENT CONSULTANTS</small></div>
+      </div>
+      <div class="gm-hero">
+        ${hero ? `<img src="${hero}"/>` : ''}
+        <div class="gm-panel">
+          <div class="gm-title">${escapeHtml(currentAudit.projectName)} GEMBA report</div>
+          <div class="gm-line">${escapeHtml(fmtLongDate(currentAudit.date))}</div>
+          <div class="gm-line">Prepared For ${escapeHtml(currentAudit.preparedFor)}</div>
+          <div class="gm-line">${n} Item${n===1?'':'s'} Identified</div>
+        </div>
+      </div>
+    </div>
+    <div class="rpt-section"><h3>Findings</h3></div>
+    <div class="gm-summary">${hz} hazard / improvement &middot; ${gd} good practice &middot; ${soc} SOC${soc===1?'':'s'} submitted</div>
+  `;
+  obs.forEach((o,i)=>{
+    const t = gType(o.type);
+    const meta = ['Assigned To ' + (o.assignedTo||'-'), o.category, o.location].filter(Boolean).join(' · ');
+    html += `
+      <div class="gm-item">
+        <div class="gm-photos">
+          ${o.photos.map(p=>`<img src="${p}"/>`).join('')}
+          <div class="gm-time">${escapeHtml(fmtTime(o.time))}</div>
+        </div>
+        <div class="gm-text">
+          <div class="gm-h">Item ${i+1} ${t ? `<span class="score-tag" style="${tierStyle(t.tier)}">${escapeHtml(t.short)}</span>` : ''}</div>
+          <div class="gm-meta">${escapeHtml(meta)}</div>
+          <div class="gm-body">${escapeHtml(o.text)}</div>
+          ${o.soc ? '<div class="gm-soc">SOC submitted</div>' : ''}
+        </div>
+      </div>`;
+  });
+  html += `<div class="gm-signoff"><strong>${escapeHtml(currentAudit.inspector)}</strong>Wade CMC</div>`;
+  printHtml(html);
 }
 
 /* ---------------- utils ---------------- */

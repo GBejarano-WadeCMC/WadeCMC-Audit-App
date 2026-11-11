@@ -1,10 +1,11 @@
-const CACHE = 'wade-audits-v1';
+const CACHE = 'wade-audits-v4';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './templates/5s.json',
   './templates/hs.json',
+  './templates/gemba.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './assets/wade-logo.png',
