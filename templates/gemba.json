@@ -1,0 +1,19 @@
+{
+  "id": "gemba",
+  "title": "Daily Site Management Safety GEMBA",
+  "mode": "observations",
+  "categories": [
+    "PPE",
+    "Housekeeping",
+    "Access & egress",
+    "Working at height",
+    "Plant & lifting",
+    "Electrical",
+    "Fire & emergency",
+    "Permits & RAMS",
+    "Welfare",
+    "Environment",
+    "Behaviours / conversation",
+    "Other"
+  ]
+}
